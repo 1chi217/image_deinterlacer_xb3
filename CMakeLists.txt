@@ -9,7 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   roscpp
   sensor_msgs
+  cv_bridge
 )
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -113,7 +115,7 @@ add_executable(image_deinterlacer_xb3 src/image_deinterlacer_xb3.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(image_deinterlacer_xb3
-   ${catkin_LIBRARIES}
+   ${catkin_LIBRARIES} ${OpenCV_LIBS}
 )
 
 #############
