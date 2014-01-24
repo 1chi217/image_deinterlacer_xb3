@@ -28,7 +28,7 @@
 class xb3ImageDeinterlacer {
 private:
     ros::NodeHandle left_nh_, right_nh_,center_nh_,nh_;
-    boost::shared_ptr<image_transport::ImageTransport> left_it_, right_it_, center_it_, it_;
+    image_transport::ImageTransport left_it_, right_it_, center_it_;
     image_transport::CameraPublisher left_pub_, right_pub_, center_pub_;
     image_transport::Subscriber image_sub_;
 
@@ -40,15 +40,12 @@ public:
     xb3ImageDeinterlacer(ros::NodeHandle left_nh,
                          ros::NodeHandle right_nh,
                          ros::NodeHandle center_nh) :
-        left_nh_(left_nh),
-        left_it_(new image_transport::ImageTransport(left_nh_)),
-        left_pub_(it_->advertiseCamera("xb3_left/image_raw", 1)),
-        right_nh_(right_nh),
-        right_it_(new image_transport::ImageTransport(right_nh_)),
-        right_pub_(it_->advertiseCamera("xb3_right/image_raw", 1)),
-        center_nh_(center_nh),
-        center_it_(new image_transport::ImageTransport(center_nh_)),
-        center_pub_(it_->advertiseCamera("xb3_center/image_raw", 1))
+        left_it_(left_nh),
+        left_pub_(left_it_.advertiseCamera("image_raw", 1)),
+        right_it_(right_nh),
+        right_pub_(right_it_.advertiseCamera("image_raw", 1)),
+        center_it_(center_nh),
+        center_pub_(center_it_.advertiseCamera("image_raw", 1))
     {
 
         //        camera_info_manager::CameraInfoManager leftInfoMgr(leftNh);
