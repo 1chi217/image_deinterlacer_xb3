@@ -25,12 +25,6 @@
 #include "sensor_msgs/CameraInfo.h"
 #include "camera_info_manager/camera_info_manager.h"
 
-#define HEIGHT      980
-#define WIDTH       480
-#define X_OFF       319
-#define Y_OFF       0
-
-
 class xb3ImageDeinterlacer {
 private:
     ros::NodeHandle left_nh_, right_nh_,center_nh_,nh_;
@@ -41,7 +35,6 @@ private:
     sensor_msgs::CameraInfo leftInfo,centerInfo,rightInfo;
     sensor_msgs::Image left,right,center;
     std::vector<cv::Mat> spl;
-    cv::Mat rightMat, leftMat, centerMat;
 
 public:
     xb3ImageDeinterlacer(ros::NodeHandle left_nh,
@@ -56,13 +49,13 @@ public:
     {
 
         camera_info_manager::CameraInfoManager leftInfoMgr(left_nh);
-//        leftInfoMgr.loadCameraInfo("package://image_deinterlacer_xb3/xb3_driver/cal_left.yaml");
-//        leftInfo = leftInfoMgr.getCameraInfo();
+        leftInfoMgr.loadCameraInfo("package://image_deinterlacer_xb3/xb3_driver/cal_left.yaml");
+        leftInfo = leftInfoMgr.getCameraInfo();
         leftInfo.header.frame_id = "/camera";
 
         camera_info_manager::CameraInfoManager centerInfoMgr(center_nh);
-//        centerInfoMgr.loadCameraInfo("package://image_deinterlacer_xb3/xb3_driver/cal_center.yaml");
-//        centerInfo = centerInfoMgr.getCameraInfo();
+        centerInfoMgr.loadCameraInfo("package://image_deinterlacer_xb3/xb3_driver/cal_center.yaml");
+        centerInfo = centerInfoMgr.getCameraInfo();
         centerInfo.header.frame_id = "/camera";
 
         //        camera_info_manager::CameraInfoManager rightInfoMgr(rightNh);
@@ -71,22 +64,34 @@ public:
         //        rightInfo.header.frame_id = "/camera";
 
         left.header.frame_id = "/camera_left_frame";
-        left.encoding = sensor_msgs::image_encodings::BAYER_GBRG8;
-        left.height = HEIGHT;
-        left.width = WIDTH;
-        left.step = WIDTH;
+        left.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
+        left.height=leftInfo.height;
+        left.width=leftInfo.width;
+        left.step=left.width;
+
+        leftInfo.roi.y_offset = 0;
+        leftInfo.roi.x_offset = left.width/4 - 1;
+        leftInfo.roi.height = left.height;
+        leftInfo.roi.width = left.width/2;
+        leftInfo.roi.do_rectify = true;
 
         center.header.frame_id = "/camera_center_frame";
-        center.encoding = sensor_msgs::image_encodings::BAYER_GBRG8;
-        center.height = HEIGHT;
-        center.width = WIDTH;
-        center.step = WIDTH;
+        center.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
+        center.height=centerInfo.height;
+        center.width=centerInfo.width;
+        center.step=center.width;
+
+        centerInfo.roi.y_offset = 0;
+        centerInfo.roi.x_offset = center.width/4 - 1;
+        centerInfo.roi.height = center.height;
+        centerInfo.roi.width = center.width/2;
+        centerInfo.roi.do_rectify = true;
 
         right.header.frame_id = "/camera_right_frame";
-        right.encoding = sensor_msgs::image_encodings::BAYER_GBRG8;
-        right.height = HEIGHT;//rightInfo.height;
-        right.width = WIDTH;//rightInfo.width;
-        right.step = WIDTH;
+        right.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
+        right.height=960;//rightInfo.height;
+        right.width=1280;//rightInfo.width;
+        right.step=right.width;
 
         left.data.reserve(960*1280);
         center.data.reserve(960*1280);
@@ -114,26 +119,15 @@ public:
         // split into 3 cameras
         cv::split(cv_ptr->image, spl);
 
-
-        // Setup a rectangle to define your region of interest
-        cv::Rect myROI(X_OFF, Y_OFF, WIDTH, HEIGHT);
-
-        // Crop the full image to that image contained by the rectangle myROI
-        // Note that this doesn't copy the data
-        leftMat = spl[2](myROI);
-        rightMat = spl[0](myROI);
-        centerMat = spl[1](myROI);
-
-
         // cast cv::Mats to std::vectors
-        const unsigned char* p_left = leftMat.ptr<unsigned char>(0);
-        std::vector<unsigned char> left_vec(p_left, p_left + leftMat.cols * leftMat.rows);
+        const unsigned char* p_left = spl[2].ptr<unsigned char>(0);
+        std::vector<unsigned char> left_vec(p_left, p_left + spl[2].cols * spl[2].rows);
 
-        const unsigned char* p_center = centerMat.ptr<unsigned char>(0);
-        std::vector<unsigned char> center_vec(p_center, p_center + centerMat.cols* centerMat.rows);
+        const unsigned char* p_center = spl[1].ptr<unsigned char>(0);
+        std::vector<unsigned char> center_vec(p_center, p_center + spl[1].cols* spl[1].rows);
 
-        const unsigned char* p_right = rightMat.ptr<unsigned char>(0);
-        std::vector<unsigned char> right_vec(p_right, p_right + rightMat.cols* rightMat.rows);
+        const unsigned char* p_right = spl[0].ptr<unsigned char>(0);
+        std::vector<unsigned char> right_vec(p_right, p_right + spl[0].cols* spl[0].rows);
 
 
         // Publish cameras
