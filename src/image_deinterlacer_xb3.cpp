@@ -69,6 +69,7 @@ public:
         left.width=leftInfo.width;
         left.step=left.width;
 
+
         leftInfo.roi.y_offset = 0;
         leftInfo.roi.x_offset = left.width/4 - 1;
         leftInfo.roi.height = left.height;
