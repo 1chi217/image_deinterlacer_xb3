@@ -69,23 +69,11 @@ public:
         left.width=leftInfo.width;
         left.step=left.width;
 
-        leftInfo.roi.y_offset = 0;
-        leftInfo.roi.x_offset = left.width/4 - 1;
-        leftInfo.roi.height = left.height;
-        leftInfo.roi.width = left.width/2;
-        leftInfo.roi.do_rectify = true;
-
         center.header.frame_id = "/camera_center_frame";
         center.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
         center.height=centerInfo.height;
         center.width=centerInfo.width;
         center.step=center.width;
-
-        centerInfo.roi.y_offset = 0;
-        centerInfo.roi.x_offset = center.width/4 - 1;
-        centerInfo.roi.height = center.height;
-        centerInfo.roi.width = center.width/2;
-        centerInfo.roi.do_rectify = true;
 
         right.header.frame_id = "/camera_right_frame";
         right.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
