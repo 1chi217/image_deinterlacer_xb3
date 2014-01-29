@@ -69,13 +69,11 @@ public:
         left.width=leftInfo.width;
         left.step=left.width;
 
-
         center.header.frame_id = "/camera_center_frame";
         center.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
         center.height=centerInfo.height;
         center.width=centerInfo.width;
         center.step=center.width;
-
 
         right.header.frame_id = "/camera_right_frame";
         right.encoding=sensor_msgs::image_encodings::BAYER_GBRG8;
